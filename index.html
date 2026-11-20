@@ -1,0 +1,618 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>骨力日課</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: single-column phone app. Scrolling content, fixed bottom nav with 4 tabs, rest/hold timer bar above the nav. Large type and touch targets for an older reader. */
+:root{
+  --bg:#F2F6F6; --surface:#FFFFFF; --surface2:#E8F0F0; --ink:#14252A; --muted:#4D6267; --line:#CBDADB;
+  --accent:#0B6B6E; --accent-ink:#FFFFFF; --accent-soft:#D6ECEB;
+  --ok:#1B6F39; --ok-soft:#DCF1E2; --warn:#8F5200; --warn-soft:#FBEACA; --bad:#B3261E; --bad-soft:#FBDEDB;
+  --font:'Noto Sans TC',system-ui,-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1A1D; --surface:#16272B; --surface2:#1D3338; --ink:#E8F1F1; --muted:#9DB3B7; --line:#2C464B;
+    --accent:#5CC9CB; --accent-ink:#06282A; --accent-soft:#17403F;
+    --ok:#6FD08E; --ok-soft:#173A24; --warn:#F2B75A; --warn-soft:#3F2E0E; --bad:#FF8A80; --bad-soft:#4A1C19;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1A1D; --surface:#16272B; --surface2:#1D3338; --ink:#E8F1F1; --muted:#9DB3B7; --line:#2C464B;
+  --accent:#5CC9CB; --accent-ink:#06282A; --accent-soft:#17403F;
+  --ok:#6FD08E; --ok-soft:#173A24; --warn:#F2B75A; --warn-soft:#3F2E0E; --bad:#FF8A80; --bad-soft:#4A1C19;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.6;
+  padding-block:0 170px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-text-size-adjust:100%;
+}
+.app{max-width:640px;margin:0 auto}
+h1,h2,h3,p{margin:0}
+h1{font-size:24px;font-weight:900;letter-spacing:.04em}
+h2{font-size:22px;font-weight:900;text-wrap:balance}
+h3{font-size:19px;font-weight:700}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:18px 0 4px}
+.top small{color:var(--muted);font-size:14px}
+.muted{color:var(--muted)}
+.small{font-size:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;display:flex;flex-direction:column;gap:12px}
+.card>h2{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hero{background:var(--accent-soft);border-radius:14px;padding:18px 16px;margin:10px 0 14px;display:flex;flex-direction:column;gap:6px}
+.hero .date{font-size:34px;font-weight:900;line-height:1.15}
+.hero .ph{font-weight:700;color:var(--accent)}
+.pill{display:inline-block;font-size:14px;font-weight:700;padding:2px 10px;border-radius:99px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.note{border-radius:10px;padding:12px 14px;font-size:16px}
+.note b{display:block;margin-bottom:2px}
+.note.ok{background:var(--ok-soft);color:var(--ok)}
+.note.warn{background:var(--warn-soft);color:var(--warn)}
+.note.bad{background:var(--bad-soft);color:var(--bad)}
+.note.info{background:var(--surface2);color:var(--ink)}
+.btn{font:inherit;font-weight:700;min-height:52px;padding:10px 18px;border-radius:12px;border:2px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;text-align:center}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.small{min-height:44px;font-size:16px;padding:6px 14px}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.btn:focus-visible,.setbtn:focus-visible,.nav button:focus-visible,.seg button:focus-visible,summary:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.seg button{font:inherit;font-size:16px;font-weight:700;min-height:52px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;line-height:1.2;padding:4px}
+.seg button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg button small{display:block;font-size:12px;font-weight:500;opacity:.85}
+.meals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.meal{font:inherit;min-height:84px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px}
+.meal b{font-size:17px}
+.meal span{font-size:14px;color:var(--muted)}
+.meal.on{background:var(--ok-soft);border-color:var(--ok)}
+.meal.on b{color:var(--ok)}
+.ex{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.ex.done{background:var(--ok-soft);border-color:var(--ok)}
+.ex-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rx{font-weight:700;font-size:20px;color:var(--accent)}
+.area{font-size:14px;color:var(--muted);margin-top:-6px}
+.sets{display:flex;flex-wrap:wrap;gap:8px}
+.setbtn{font:inherit;font-size:16px;font-weight:700;min-height:52px;min-width:104px;padding:6px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.setbtn span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--surface2);font-size:15px}
+.setbtn.on{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.setbtn.on span{background:var(--surface);color:var(--ok)}
+details{border-top:1px dashed var(--line);padding-top:8px}
+summary{cursor:pointer;font-weight:700;color:var(--accent);min-height:44px;display:flex;align-items:center}
+details ol,details ul{margin:6px 0 8px;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
+details p{font-size:16px;margin:6px 0}
+details a{color:var(--accent);font-weight:700}
+.sl{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.sl label{font-weight:700}
+.sl output{font-weight:900;color:var(--accent);text-align:right;font-size:16px}
+.sl input{grid-column:1/-1;width:100%;height:36px;accent-color:var(--accent)}
+.chk{display:flex;gap:12px;align-items:flex-start;font-size:17px;cursor:pointer}
+.chk input{width:28px;height:28px;flex:none;accent-color:var(--accent);margin:2px 0 0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface2);border-radius:12px;padding:10px 8px;text-align:center}
+.stat b{display:block;font-size:28px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;color:var(--muted)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:14px;color:var(--muted)}
+.wd.today b{color:var(--accent)}
+.wd i{display:block;width:26px;height:12px;border-radius:4px;background:var(--surface2)}
+.wd i.s{background:var(--accent)}
+.wd i.w{background:var(--ok)}
+.legend{display:flex;gap:16px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:3px;margin-right:6px}
+.bar{height:14px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--ok);border-radius:99px}
+.chart{width:100%;height:auto;display:block}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .goal{stroke:var(--ok);stroke-width:1.5;stroke-dasharray:5 4}
+.chart .ax{fill:var(--muted);font-size:11px;font-family:var(--font)}
+.chart .ln{fill:none;stroke-width:2.5;stroke-linejoin:round}
+.chart .dot{fill:var(--surface);stroke-width:2.5}
+.chart .c1{stroke:var(--accent)}
+.chart .c2{stroke:var(--warn)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:15px;font-weight:700;color:var(--muted)}
+input[type=number],input[type=date],input[type=text],select,textarea{font:inherit;font-size:18px;min-height:48px;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);width:100%;min-width:0}
+textarea{min-height:96px;resize:vertical}
+table{border-collapse:collapse;width:100%;font-size:16px;font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:14px;color:var(--muted);font-weight:700}
+.scroll{overflow-x:auto}
+ul.plain{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.nav button{font:inherit;font-size:14px;font-weight:700;border:0;background:transparent;color:var(--muted);min-height:58px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+.nav button svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav button.on{color:var(--accent);background:var(--accent-soft)}
+.timer{position:fixed;z-index:25;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(80px + env(safe-area-inset-bottom,0px));max-width:608px;margin:0 auto;background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 12px 10px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.timer.end{background:var(--ok);color:var(--surface)}
+.timer .tl{font-size:15px;flex:1;min-width:0}
+.timer .tt{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.timer button{font:inherit;font-weight:700;min-height:44px;padding:6px 14px;border-radius:10px;border:2px solid currentColor;background:transparent;color:inherit;cursor:pointer}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:16px;z-index:30;max-width:90%}
+@media (prefers-reduced-motion:no-preference){.card,.hero{animation:rise .25s ease-out}@keyframes rise{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}}
+@media (max-width:380px){.setbtn{min-width:92px}.seg button{font-size:15px}}
+</style>
+
+<div class="app">
+  <header class="top"><h1>骨力日課</h1><small id="sub">肌力・骨骼・平衡</small></header>
+  <main id="view"></main>
+</div>
+<div id="timer" class="timer" hidden role="timer"><div class="tl" id="tl"></div><div class="tt" id="tt">0:00</div><button type="button" data-act="stoptimer">關閉</button></div>
+<div id="toast" class="toast" hidden role="status"></div>
+<nav class="nav" aria-label="主選單">
+  <button type="button" data-tab="today"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>今天</button>
+  <button type="button" data-tab="moves"><svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg>動作</button>
+  <button type="button" data-tab="progress"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>進度</button>
+  <button type="button" data-tab="safety"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M12 8v5M12 16v.5"/></svg>安全</button>
+</nav>
+
+<script>
+(function(){
+'use strict';
+var KEY='guli-rike.v1';
+var TABS=['today','moves','progress','safety'];
+var WD=['日','一','二','三','四','五','六'];
+function $(s){return document.querySelector(s);}
+var ESC={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ESC[c];});}
+function pad(n){return String(n).padStart(2,'0');}
+function ds(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function todayStr(){return ds(new Date());}
+function parse(s){var a=s.split('-').map(Number);return new Date(a[0],a[1]-1,a[2]);}
+function addDays(s,n){var d=parse(s);d.setDate(d.getDate()+n);return ds(d);}
+function daysBetween(a,b){return Math.round((parse(b)-parse(a))/86400000);}
+function short(s){var d=parse(s);return (d.getMonth()+1)+'/'+d.getDate();}
+
+/* ---------- 資料 ---------- */
+function def(){return {name:'',startDate:todayStr(),phaseMode:'auto',clearance:false,autoRest:true,days:{},metrics:[]};}
+function load(){
+  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&typeof o==='object'){var d=def();for(var k in o){d[k]=o[k];}if(!d.days||typeof d.days!=='object')d.days={};if(!Array.isArray(d.metrics))d.metrics=[];return d;}}}catch(e){}
+  return def();
+}
+var S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function D(d,create){
+  var r=S.days[d];
+  if(!r&&create){r=S.days[d]={done:{},walks:[false,false,false]};}
+  if(!r){return {done:{},walks:[false,false,false]};}
+  if(!r.done)r.done={};
+  if(!r.walks)r.walks=[false,false,false];
+  return r;
+}
+
+/* ---------- 計畫 ---------- */
+function weekNo(date){return Math.max(1,Math.floor(daysBetween(S.startDate,date)/7)+1);}
+function phaseFor(date){
+  if(S.phaseMode!=='auto')return +S.phaseMode;
+  var w=weekNo(date);return w<=4?1:(w<=8?2:3);
+}
+function plannedSession(date){
+  var wd=parse(date).getDay(),p=phaseFor(date);
+  if(p===1)return wd===1?'A':(wd===4?'B':null);
+  return wd===1?'A':(wd===3?'B':(wd===5?'C':null));
+}
+var PHASE={
+  1:{n:'打好基礎',d:'每週 2 次肌力。先把動作做對、膝蓋不痛，次數少一點也沒關係。'},
+  2:{n:'穩定增加',d:'每週 3 次肌力。次數慢慢增加，仍以不痛為原則。'},
+  3:{n:'加強力量',d:'每週 3 次肌力。增加組數；彈力帶可換稍強一級，但要先確認不痛、不喘。'}
+};
+var SESS={
+  A:{n:'下肢力量日',sub:'臀部、大腿、小腿',ex:['sts','bridge','sideleg','sak','calf']},
+  B:{n:'上身與核心穩定日',sub:'背部、肩膀、抗旋轉',ex:['row','lateral','pushup','pallof','wall','carry']},
+  C:{n:'全身整合日',sub:'下肢＋背部＋核心',ex:['sts','bridge','row','pushup','calf','pallof']}
+};
+var BAL=['tandem','single','shift'];
+function exList(type){
+  var l=SESS[type].ex.slice();
+  if(S.clearance&&(type==='A'||type==='C'))l.push('heel');
+  return l;
+}
+var EX={
+sts:{n:'高椅坐站',area:'大腿前側、臀部',unit:'下',side:false,rx:{1:[2,6],2:[2,8],3:[3,8]},
+  how:['椅面墊高，讓坐下時膝蓋不要低於髖部。','雙腳與肩同寬，膝蓋對準腳尖，不用刻意內夾或外撐。','胸口挺起、背部維持平直，臀部先往後坐再站起。','站起用 2 秒，坐下慢慢用 3 秒。'],
+  easy:'椅子再墊高一點，或雙手扶穩桌面幫忙。',avoid:'不要彎腰駝背；膝蓋前方刺痛超過 3 分就停止或再墊高。',q:'長者 高椅 坐站 訓練'},
+bridge:{n:'臀橋',area:'臀部、大腿後側',unit:'下',side:false,rx:{1:[2,8],2:[2,10],3:[3,10]},
+  how:['在床上或墊子上仰躺，雙膝彎曲、雙腳踩穩與髖同寬。','吐氣時臀部抬起，讓肩膀到膝蓋成一直線，頂端停 2 秒。','慢慢放下，每下約 4 秒。'],
+  easy:'抬高的幅度小一點。',avoid:'腰部不要過度拱起；下背痠痛就降低高度。',q:'臀橋 長者 正確做法'},
+sideleg:{n:'側躺抬腿',area:'臀中肌（穩定膝蓋）',unit:'下',side:true,rx:{1:[2,8],2:[2,10],3:[2,12]},
+  how:['側躺，下方腿微彎，上方腿伸直稍微往後。','腳尖朝前，把腿抬到約 30–45 度，不用更高。','慢慢放下，骨盆保持不往後倒。'],
+  easy:'抬低一點，或先不抬到最高。',avoid:'不要用腰去甩腿。',q:'側躺抬腿 臀中肌 長者'},
+sak:{n:'坐姿伸膝',area:'大腿前側（股四頭肌）',unit:'下',side:true,rx:{1:[2,8],2:[2,10],3:[2,12]},
+  how:['坐在穩固的椅子上，背靠椅背。','把小腿慢慢抬起到膝蓋接近伸直，大腿前側用力。','停 3 秒，再慢慢放下。第一階段不綁重物。'],
+  easy:'只做不痛的角度，縮小動作範圍。',avoid:'膝蓋前方（髕骨周圍）刺痛就縮小範圍；不要用力把膝蓋鎖死。',q:'坐姿伸膝 股四頭肌 膝關節炎'},
+calf:{n:'扶桌踮腳',area:'小腿、平衡',unit:'下',side:false,rx:{1:[2,8],2:[2,10],3:[2,12]},
+  how:['雙手輕扶穩固的桌面或流理台。','慢慢踮起腳跟 2 秒，停 1 秒，再用 3 秒放下。','腳踝保持正直，不往外翻。'],
+  easy:'手多扶一點，踮低一點。',avoid:'不要快速彈跳。',q:'扶桌 踮腳 小腿 長者'},
+pushup:{n:'靠牆伏地挺身',area:'胸部、肩膀、手臂',unit:'下',side:false,rx:{1:[2,6],2:[2,8],3:[2,10]},
+  how:['面向牆站，距離約一臂長，雙手與肩同高同寬。','身體保持一直線，不要凹腰。','手肘彎曲讓胸口靠近牆，再推回。'],
+  easy:'腳離牆近一點。',hard:'腳離牆遠一點。',avoid:'腰不要往下塌。',q:'靠牆 伏地挺身 長者'},
+row:{n:'坐姿彈力帶划船',area:'上背、肩胛（改善駝背姿勢）',unit:'下',side:false,rx:{1:[2,8],2:[2,10],3:[2,12]},
+  how:['坐在椅子前緣，背挺直，彈力帶中段繞過雙腳腳底，兩端握在手中。','手肘往後，同時把兩側肩胛骨輕輕夾向脊椎，停 1 秒。','慢慢放回。'],
+  easy:'用最輕的彈力帶。',avoid:'不要聳肩，也不要往後仰。',q:'坐姿 彈力帶 划船 長者'},
+lateral:{n:'坐姿側平舉',area:'肩膀',unit:'下',side:false,rx:{1:[2,8],2:[2,10],3:[2,12]},
+  how:['坐直靠著椅背，雙手各拿一瓶小水瓶（約 0.5 公斤）。','手肘微彎，把手臂抬到與肩同高。','慢慢放下。'],
+  easy:'不拿東西，空手做。',avoid:'不要聳肩、不要挺腰。',q:'坐姿 側平舉 肩膀 長者'},
+pallof:{n:'彈力帶抗旋轉推出',area:'核心（身體不轉動）',unit:'下',side:true,rx:{1:[2,6],2:[2,8],3:[2,10]},
+  how:['把彈力帶固定在身體側邊、與胸齊高的穩固處（例如門把）。','側身站好，雙手握帶放在胸前。','把手往前推直，停 2 秒，骨盆和身體不要被拉得轉動，再慢慢收回。'],
+  easy:'坐在椅子上做，或用更輕的彈力帶。',avoid:'不要用力扭腰，這個動作是要「不轉」。',q:'Pallof press 彈力帶 抗旋轉'},
+wall:{n:'靠牆挺胸站',area:'姿勢、脊椎穩定',unit:'秒',side:false,rx:{1:[2,20],2:[2,30],3:[2,40]},
+  how:['背靠牆，腳跟離牆約一個腳掌。','臀部、兩側肩胛輕貼牆，下巴微收，自然呼吸。','頭碰不到牆就不要硬把頭往後仰。'],
+  easy:'縮短時間。',avoid:'不要用力挺腰，也不要硬仰頭。',q:'靠牆站姿 矯正 駝背 長者'},
+carry:{n:'提物行走',area:'全身、骨骼負重',unit:'秒',side:false,rx:{1:[2,30],2:[2,40],3:[2,40]},
+  how:['手上各拿 1–2 公斤的水瓶或購物袋（重物先放在桌上，不要從地上彎腰提起）。','抬頭挺胸，小步穩穩地走，眼睛看前方。','走到時間到，把東西放回桌上。'],
+  easy:'減輕重量或不拿東西。',avoid:'不要彎腰提重物；地面要平整、乾燥。',q:'農夫走路 提物 行走 長者'},
+heel:{n:'腳跟輕落',area:'骨骼受力（輕度衝擊）',unit:'下',side:false,rx:{1:[1,10],2:[2,10],3:[2,12]},
+  how:['雙手扶穩桌面，踮起腳跟。','讓腳跟自然、輕輕地落下，不是用力踩。','聲音很輕即可。'],
+  easy:'先不做，只做踮腳。',avoid:'脊椎或膝蓋有任何不舒服立刻停止。這個動作僅在醫師同意後使用。',q:'heel drops 骨質疏鬆'},
+tandem:{n:'前後腳站',area:'平衡',unit:'秒',side:true,cat:'bal',rx:{1:[2,15],2:[2,20],3:[2,30]},
+  how:['站在穩固的桌子或牆邊，一腳腳跟靠著另一腳腳尖。','手指輕輕碰著桌面備用，眼睛看前方。','維持時間後換腳。'],
+  easy:'兩腳稍微錯開一點。',avoid:'身邊要有可扶的東西，地面不要太滑。',q:'前後腳站 平衡 長者'},
+single:{n:'單腳站（指尖扶牆）',area:'平衡、髖部',unit:'秒',side:true,cat:'bal',rx:{1:[2,10],2:[2,15],3:[2,20]},
+  how:['站在桌子或牆邊，手指輕碰著備用。','一腳微微離地，另一腳站穩，膝蓋不鎖死。','維持時間後換腳。'],
+  easy:'腳尖點地就好。',avoid:'不要閉眼；不要離可扶的東西太遠。',q:'單腳站 平衡 長者 防跌'},
+shift:{n:'左右重心轉移',area:'平衡、髖部控制',unit:'次',side:false,cat:'bal',rx:{1:[1,10],2:[1,12],3:[1,15]},
+  how:['雙腳與肩同寬站好，手靠近桌面備用。','把重心慢慢移到右腳，停 2 秒，再移到左腳。','膝蓋保持對準腳尖。'],
+  easy:'移動的幅度小一點。',avoid:'身體不要往旁邊彎。',q:'重心轉移 平衡 長者'}
+};
+
+/* ---------- 狀態與計時 ---------- */
+var tab='today';
+var openEx={};
+var pendingDel=-1;
+var tEnd=0,tInt=null;
+function fmt(sec){return Math.floor(sec/60)+':'+pad(sec%60);}
+function beep(){
+  try{var A=window.AudioContext||window.webkitAudioContext;var c=new A();var o=c.createOscillator();var g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.value=0.15;o.start();setTimeout(function(){try{o.stop();c.close();}catch(e){}},350);}catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate(200);}catch(e){}
+}
+function tick(){
+  var left=Math.ceil((tEnd-Date.now())/1000);
+  if(left<=0){clearInterval(tInt);$('#tt').textContent='時間到';$('#timer').classList.add('end');beep();return;}
+  $('#timer').classList.remove('end');$('#tt').textContent=fmt(left);
+}
+function startTimer(sec,label){
+  tEnd=Date.now()+sec*1000;$('#timer').hidden=false;$('#tl').textContent=label;tick();
+  clearInterval(tInt);tInt=setInterval(tick,250);
+}
+function stopTimer(){clearInterval(tInt);$('#timer').hidden=true;$('#timer').classList.remove('end');}
+var toastT=0;
+function toast(msg){var t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true;},2600);}
+
+/* ---------- 小元件 ---------- */
+function painWord(v){v=+v;return v<=1?'幾乎不痛':(v<=3?'輕微':(v<=5?'中等，要調整':'明顯，請停止'));}
+function rpeWord(v){v=+v;return v<=3?'很輕鬆':(v<=6?'適中':(v<=8?'有點吃力':'太吃力'));}
+function slider(id,label,val,kind){
+  var w=kind==='rpe'?rpeWord(val):painWord(val);
+  return '<div class="sl"><label for="'+id+'">'+label+'</label><output id="'+id+'-o">'+val+'・'+w+'</output><input type="range" id="'+id+'" min="0" max="10" step="1" value="'+val+'" data-out="'+id+'-o" data-kind="'+kind+'"></div>';
+}
+function rxText(id,p){
+  var e=EX[id],r=e.rx[p];
+  return r[0]+' 組 × '+r[1]+' '+e.unit+(e.side?'（每側）':'');
+}
+function exDetail(id){
+  var e=EX[id];
+  var h='<ol>'+e.how.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ol>';
+  h+='<p><b>太吃力時：</b>'+e.easy+'</p>';
+  if(e.hard)h+='<p><b>想更有挑戰：</b>'+e.hard+'</p>';
+  h+='<p><b>注意：</b>'+e.avoid+'</p>';
+  h+='<p><a href="https://www.youtube.com/results?search_query='+encodeURIComponent(e.q)+'" target="_blank" rel="noopener">搜尋示範影片 ↗</a></p>';
+  return h;
+}
+function exCard(id,date,p){
+  var e=EX[id],r=e.rx[p],sets=r[0],amt=r[1];
+  var rec=D(date),done=rec.done[id]||[];
+  var n=0,btns='';
+  for(var i=0;i<sets;i++){
+    var on=!!done[i];if(on)n++;
+    btns+='<button type="button" class="setbtn'+(on?' on':'')+'" data-act="set" data-ex="'+id+'" data-i="'+i+'" aria-pressed="'+on+'"><span>'+(on?'✓':(i+1))+'</span>第 '+(i+1)+' 組</button>';
+  }
+  var sec=e.unit==='秒';
+  return '<article class="ex'+(n===sets?' done':'')+'">'+
+    '<div class="ex-head"><h3>'+e.n+'</h3><span class="pill'+(n===sets?' ok':'')+'">'+n+'/'+sets+'</span></div>'+
+    '<p class="rx">'+rxText(id,p)+'</p><p class="area">'+e.area+'</p>'+
+    '<div class="sets">'+btns+'</div>'+
+    (sec?'<button type="button" class="btn small" data-act="hold" data-sec="'+amt+'" data-label="'+e.n+'">▶ 計時 '+amt+' 秒</button>':'')+
+    '<details data-exid="'+id+'"'+(openEx[id]?' open':'')+'><summary>怎麼做、注意事項</summary>'+exDetail(id)+'</details></article>';
+}
+function chart(series,o){
+  var W=320,H=150,L=34,R=10,T=10,B=22;
+  var n=0;series.forEach(function(s){n=Math.max(n,s.data.length);});
+  if(!n)return '';
+  var min=o.min,max=o.max;
+  function x(i){return L+(n<=1?(W-L-R)/2:i*(W-L-R)/(n-1));}
+  function y(v){return T+(max-v)*(H-T-B)/(max-min);}
+  var g='';
+  o.ticks.forEach(function(t){g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(t).toFixed(1)+'" y2="'+y(t).toFixed(1)+'" class="grid"/><text x="'+(L-5)+'" y="'+(y(t)+4).toFixed(1)+'" text-anchor="end" class="ax">'+t+'</text>';});
+  if(o.goal!=null){g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(o.goal).toFixed(1)+'" y2="'+y(o.goal).toFixed(1)+'" class="goal"/><text x="'+(W-R)+'" y="'+(y(o.goal)-4).toFixed(1)+'" text-anchor="end" class="ax">'+o.goalLabel+'</text>';}
+  series.forEach(function(s){
+    var pts=s.data.map(function(v,i){return x(i).toFixed(1)+','+y(v).toFixed(1);});
+    g+='<polyline points="'+pts.join(' ')+'" class="ln '+s.cls+'"/>';
+    s.data.forEach(function(v,i){g+='<circle cx="'+x(i).toFixed(1)+'" cy="'+y(v).toFixed(1)+'" r="3.5" class="dot '+s.cls+'"/>';});
+  });
+  g+='<text x="'+L+'" y="'+(H-6)+'" class="ax" text-anchor="start">'+o.labels[0]+'</text>';
+  if(n>1)g+='<text x="'+(W-R)+'" y="'+(H-6)+'" class="ax" text-anchor="end">'+o.labels[n-1]+'</text>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(o.aria)+'" class="chart">'+g+'</svg>';
+}
+
+/* ---------- 進階建議 ---------- */
+function finishedDates(){
+  return Object.keys(S.days).filter(function(d){return S.days[d].sess&&S.days[d].sess.finished;}).sort();
+}
+function suggestion(date){
+  var fin=finishedDates();
+  var last=fin.slice(-2);
+  if(last.length<2)return null;
+  if(daysBetween(last[1],date)>14)return null;
+  var s=last.map(function(d){return S.days[d].sess;});
+  if(s.some(function(x){return x.postBack>=3;}))return {k:'bad',t:'最近訓練後背部有不舒服（3 分以上）。請先暫停肌力訓練，只做散步，並盡快請骨科或復健科評估。'};
+  if(s.some(function(x){return x.postKnee>=4;}))return {k:'warn',t:'最近訓練後膝蓋痛偏高（4 分以上）。下次把椅子再墊高、減少一組、縮小動作範圍；若持續請讓醫師或物理治療師看一下。'};
+  if(s.every(function(x){return x.postKnee<=2&&x.postBack<=1&&x.rpe<=6;}))return {k:'ok',t:'最近兩次都輕鬆完成，膝蓋和背部都很穩。可以進入下一階段。',next:true};
+  return null;
+}
+
+/* ---------- 頁面：今天 ---------- */
+function strengthCard(date,p){
+  var rec=D(date),planned=plannedSession(date);
+  var chosen=rec.chosen!==undefined?rec.chosen:(planned||'none');
+  var opts=[['none','休息'],['A','下肢'],['B','上身'],['C','全身']];
+  var seg='<div class="seg" role="group" aria-label="今天要做的訓練">'+opts.map(function(o){
+    var sug=(planned||'none')===o[0];
+    return '<button type="button" data-act="choose" data-v="'+o[0]+'" class="'+(chosen===o[0]?'on':'')+'" aria-pressed="'+(chosen===o[0])+'">'+o[1]+'<small>'+(sug?'建議':'&nbsp;')+'</small></button>';
+  }).join('')+'</div>';
+  var h='<section class="card"><h2>今天的肌力訓練</h2>'+seg;
+  if(chosen==='none'){
+    h+='<p>今天是恢復日。肌肉和骨骼是在休息時變強的，只要完成飯後散步和平衡練習就很好。</p>';
+    return h+'</section>';
+  }
+  var T=SESS[chosen];
+  h+='<div><h3>'+T.n+'</h3><p class="muted small">'+T.sub+'</p></div>';
+  var s=rec.sess||{};
+  if(s.blocked){
+    h+='<div class="note bad"><b>今天先不做肌力訓練</b>你回報了背痛偏高，或最近有跌倒、新的背痛、腿麻無力。請只做慢慢走路，休息觀察；症狀沒有改善或有新的疼痛，請盡快回診。</div>';
+    h+='<button type="button" class="btn" data-act="recheck">重新檢查</button>';
+    return h+'</section>';
+  }
+  if(!s.started){
+    h+='<div class="note info"><b>開始前先檢查身體</b>誠實回答，比做完組數更重要。</div>';
+    h+=slider('pk','膝蓋現在的痛感',0,'pain')+slider('pb','背部（脊椎）現在的痛感',0,'pain');
+    h+='<label class="chk"><input type="checkbox" id="pf"><span>最近 3 天有跌倒、突然出現新的背痛、腿麻或無力</span></label>';
+    h+='<button type="button" class="btn primary" data-act="start">開始今天的訓練</button>';
+    return h+'</section>';
+  }
+  if(s.preKnee>=4)h+='<div class="note warn"><b>膝蓋今天比較痛</b>每個動作少做一組、動作範圍縮小、椅子墊高、多用手扶。痛感維持在 3 分以下。</div>';
+  h+='<div class="note info"><b>熱身 3 分鐘</b>原地慢踏步 1 分鐘、肩膀往後繞圈 10 下、扶牆把腿前後輕擺各 10 下。</div>';
+  h+=exList(chosen).map(function(id){return exCard(id,date,p);}).join('');
+  h+='<div class="note info"><b>收操</b>慢慢走 2 分鐘、深呼吸。不要彎腰去碰腳尖。</div>';
+  if(s.finished){
+    var fb='ok',ft='做得很好，繼續維持。';
+    if(s.postBack>=3){fb='bad';ft='訓練後背部不舒服。今天不要再加做，明天先只散步；若持續或加重請盡快回診。';}
+    else if(s.postKnee>=4){fb='warn';ft='膝蓋痛偏高。下次減少一組、動作範圍縮小、椅子墊高。';}
+    h+='<div class="note '+fb+'"><b>今天已完成</b>用力程度 '+s.rpe+'（'+rpeWord(s.rpe)+'）・膝蓋 '+s.postKnee+'・背部 '+s.postBack+(s.note?'<br>備註：'+esc(s.note):'')+'<br>'+ft+'</div>';
+    h+='<button type="button" class="btn" data-act="reopen">修改完成記錄</button>';
+  }else{
+    h+='<h3>做完後記錄</h3>'+slider('rp','用力程度（0 輕鬆～10 極限）',5,'rpe')+slider('qk','膝蓋現在的痛感',0,'pain')+slider('qb','背部現在的痛感',0,'pain');
+    h+='<div class="field"><label for="nt">備註（選填）</label><input type="text" id="nt" maxlength="60" placeholder="例如：右膝下樓梯有點痠"></div>';
+    h+='<button type="button" class="btn primary" data-act="finish">完成今天的訓練</button>';
+  }
+  return h+'</section>';
+}
+function viewToday(){
+  var date=todayStr(),p=phaseFor(date),w=weekNo(date);
+  var d=new Date(),h=d.getHours();
+  var hello=h<11?'早安':(h<18?'午安':'晚安');
+  var info=PHASE[p];
+  var out='<section class="hero"><span class="muted small">'+hello+(S.name?'，'+esc(S.name):'')+'</span><div class="date">'+(d.getMonth()+1)+' 月 '+d.getDate()+' 日　週'+WD[d.getDay()]+'</div><div class="ph">第 '+w+' 週・第 '+p+' 階段「'+info.n+'」</div><p class="small">'+info.d+'</p>'+(S.phaseMode==='auto'&&w>12?'<p class="small"><b>已超過 12 週，建議回診重新評估骨密度與訓練強度。</b></p>':'')+'</section>';
+  var sg=suggestion(date);
+  if(sg){
+    out+='<div class="note '+sg.k+'"><b>給你的提醒</b>'+sg.t+(sg.next&&p<3&&S.phaseMode!==String(p+1)?'<br><button type="button" class="btn small" style="margin-top:8px" data-act="nextphase">進入第 '+(p+1)+' 階段</button>':'')+'</div>';
+  }
+  out+=strengthCard(date,p);
+  var rec=D(date);
+  var meals=[['早餐後','10 分鐘'],['午餐後','15–20 分鐘'],['晚餐後','10–15 分鐘']];
+  var wn=rec.walks.filter(Boolean).length;
+  out+='<section class="card"><h2>飯後散步<span class="pill'+(wn>=3?' ok':'')+'">'+wn+'/3</span></h2><div class="meals">'+meals.map(function(m,i){
+    return '<button type="button" class="meal'+(rec.walks[i]?' on':'')+'" data-act="walk" data-i="'+i+'" aria-pressed="'+!!rec.walks[i]+'"><b>'+(rec.walks[i]?'✓ ':'')+m[0]+'</b><span>'+m[1]+'</span></button>';
+  }).join('')+'</div><p class="small muted">飯後休息 5–10 分鐘再出發。速度是邊走邊能輕鬆說話的程度。膝蓋痛就縮短時間，或改在室內平地走。</p></section>';
+  var bd=BAL.map(function(id){return exCard(id,date,p);}).join('');
+  out+='<section class="card"><h2>平衡練習（每天約 5 分鐘）</h2><p class="small muted">減少跌倒就是保護骨頭。每個動作都要站在可以扶的桌子或牆邊。</p>'+bd+'</section>';
+  out+='<p class="small muted" style="margin:16px 0">本 APP 提供一般性的運動安排，不能取代醫師或物理治療師的評估。開始前請讓骨科或復健科確認脊椎狀況與可承受的負荷。</p>';
+  return out;
+}
+
+/* ---------- 頁面：動作 ---------- */
+function viewMoves(){
+  var p=phaseFor(todayStr());
+  var h='<section class="card"><h2>動作總覽</h2><p class="small muted">目前是第 '+p+' 階段。點開每個動作看做法、太吃力時怎麼調整，以及要避免什麼。</p></section>';
+  ['A','B','C'].forEach(function(k){
+    var T=SESS[k];
+    h+='<section class="card"><h2>'+T.n+'</h2><p class="small muted">'+T.sub+'</p>'+exList(k).map(function(id){
+      return '<details data-exid="'+id+'-m'+k+'"'+(openEx[id+'-m'+k]?' open':'')+'><summary>'+EX[id].n+'　'+rxText(id,p)+'</summary>'+exDetail(id)+'</details>';
+    }).join('')+'</section>';
+  });
+  h+='<section class="card"><h2>每日平衡</h2>'+BAL.map(function(id){
+    return '<details data-exid="'+id+'-mb"'+(openEx[id+'-mb']?' open':'')+'><summary>'+EX[id].n+'　'+rxText(id,p)+'</summary>'+exDetail(id)+'</details>';
+  }).join('')+'</section>';
+  h+='<section class="card"><h2>目前不建議做的動作</h2><ul class="plain"><li>仰臥起坐、捲腹、仰臥空中腳踏車（反覆彎曲脊椎）</li><li>彎腰提重物、深度前彎、用手碰腳尖</li><li>快速扭轉腰部</li><li>跳躍、跑步（衝擊大）</li><li>深蹲過深、高阻力的腿部訓練機（膝蓋前方會痛）</li></ul></section>';
+  return h;
+}
+
+/* ---------- 頁面：進度 ---------- */
+function viewProgress(){
+  var t=todayStr(),p=phaseFor(t);
+  var last7=[0,1,2,3,4,5,6].map(function(i){return addDays(t,i-6);});
+  var fin=finishedDates();
+  var wk=fin.filter(function(d){return d>=last7[0]&&d<=t;}).length;
+  var target=p===1?2:3;
+  var walkDays=last7.filter(function(d){return D(d).walks.some(Boolean);}).length;
+  var h='<section class="card"><h2>最近 7 天</h2><div class="stats"><div class="stat"><b>'+wk+'/'+target+'</b><span>肌力訓練</span></div><div class="stat"><b>'+walkDays+'/7</b><span>有散步的天數</span></div><div class="stat"><b>'+fin.length+'</b><span>累計訓練次數</span></div></div>';
+  h+='<div class="week">'+last7.map(function(d){
+    var r=D(d),s=r.sess&&r.sess.finished,wl=r.walks.filter(Boolean).length>=2;
+    return '<div class="wd'+(d===t?' today':'')+'"><span>'+WD[parse(d).getDay()]+'</span><b>'+parse(d).getDate()+'</b><i class="'+(s?'s':'')+'"></i><i class="'+(wl?'w':'')+'"></i></div>';
+  }).join('')+'</div><div class="legend"><span><i style="background:var(--accent)"></i>肌力訓練</span><span><i style="background:var(--ok)"></i>散步 2 次以上</span></div></section>';
+
+  var recent=fin.slice(-10);
+  h+='<section class="card"><h2>訓練後疼痛趨勢</h2>';
+  if(recent.length>=2){
+    h+=chart([{cls:'c1',data:recent.map(function(d){return S.days[d].sess.postKnee;})},{cls:'c2',data:recent.map(function(d){return S.days[d].sess.postBack;})}],{min:0,max:10,ticks:[0,3,6,10],labels:recent.map(short),aria:'最近訓練後的膝蓋與背部疼痛分數'});
+    h+='<div class="legend"><span><i style="background:var(--accent)"></i>膝蓋</span><span><i style="background:var(--warn)"></i>背部</span></div><p class="small muted">目標：膝蓋 3 分以下、背部 1 分以下。</p>';
+  }else{
+    h+='<p class="muted">完成 2 次訓練後，這裡會出現疼痛趨勢圖。</p>';
+  }
+  h+='</section>';
+
+  var ms=S.metrics.map(function(m,i){m._i=i;return m;}).sort(function(a,b){return a.date<b.date?-1:1;});
+  var wm=ms.filter(function(m){return m.weight;});
+  h+='<section class="card"><h2>體重與體能</h2>';
+  if(wm.length){
+    var latest=wm[wm.length-1].weight,start=57,goal=54;
+    var pct=Math.max(0,Math.min(100,(start-latest)/(start-goal)*100));
+    h+='<div class="stats"><div class="stat"><b>'+latest+'</b><span>最新體重 kg</span></div><div class="stat"><b>'+goal+'</b><span>第一階段目標</span></div><div class="stat"><b>'+Math.round(pct)+'%</b><span>已完成</span></div></div><div class="bar" role="img" aria-label="體重目標完成 '+Math.round(pct)+'%"><i style="width:'+pct+'%"></i></div>';
+    if(wm.length>=2){
+      var vals=wm.map(function(m){return m.weight;});
+      var mn=Math.floor(Math.min.apply(null,vals.concat([54]))-1),mx=Math.ceil(Math.max.apply(null,vals.concat([57]))+1);
+      h+=chart([{cls:'c1',data:vals}],{min:mn,max:mx,ticks:[mn,Math.round((mn+mx)/2),mx],goal:54,goalLabel:'目標 54',labels:wm.map(function(m){return short(m.date);}),aria:'體重變化'});
+    }
+    h+='<p class="small muted">減重要慢，每週約 0.25–0.5 公斤為宜。減得太快會連肌肉和骨頭一起流失；若更快，請與醫師或營養師討論。</p>';
+  }else{
+    h+='<p class="muted">記錄第一筆資料後，這裡會顯示體重與目標。</p>';
+  }
+  h+='<h3>新增一筆記錄</h3><div class="row2"><div class="field"><label for="m-date">日期</label><input type="date" id="m-date" value="'+t+'"></div><div class="field"><label for="m-w">體重（公斤）</label><input type="number" id="m-w" inputmode="decimal" step="0.1" min="30" max="150" placeholder="57.0"></div><div class="field"><label for="m-wa">腰圍（公分）</label><input type="number" id="m-wa" inputmode="decimal" step="0.5" min="40" max="160"></div><div class="field"><label for="m-sts">30 秒坐站（次）</label><input type="number" id="m-sts" inputmode="numeric" min="0" max="60"></div><div class="field"><label for="m-sl">單腳站（秒，指尖可扶）</label><input type="number" id="m-sl" inputmode="numeric" min="0" max="120"></div></div>';
+  h+='<p class="small muted">建議每 2–4 週測一次。坐站測試要有人在旁邊，膝蓋痛就停止，不要勉強。</p><button type="button" class="btn primary" data-act="addmetric">儲存記錄</button>';
+  if(ms.length){
+    h+='<div class="scroll"><table><thead><tr><th>日期</th><th>體重</th><th>腰圍</th><th>坐站</th><th>單腳</th><th></th></tr></thead><tbody>'+ms.slice().reverse().map(function(m){
+      return '<tr><td>'+short(m.date)+'</td><td>'+(m.weight||'–')+'</td><td>'+(m.waist||'–')+'</td><td>'+(m.sts||'–')+'</td><td>'+(m.sl||'–')+'</td><td><button type="button" class="btn small danger" data-act="delmetric" data-i="'+m._i+'">'+(pendingDel===m._i?'確定刪除':'刪除')+'</button></td></tr>';
+    }).join('')+'</tbody></table></div>';
+  }
+  return h+'</section>';
+}
+
+/* ---------- 頁面：安全 ---------- */
+function viewSafety(){
+  var h='<section class="card"><h2>馬上停止並就醫</h2><div class="note bad"><b>出現下列情況，請停止運動</b><ul class="plain"><li>突然出現新的、劇烈的背痛，或背痛一躺下也不緩解</li><li>腿麻、無力，或大小便控制有變化</li><li>跌倒後任何地方（髖部、手腕、背部）疼痛或不能承重</li><li>胸痛、呼吸困難、頭暈或快要昏倒</li></ul></div></section>';
+  h+='<section class="card"><h2>疼痛燈號</h2><div class="note ok"><b>0–3 分：可以繼續</b>輕微痠痛，隔天恢復。</div><div class="note warn"><b>4–5 分：要調整</b>減少組數、縮小動作、墊高椅子；仍痛就停止這個動作。</div><div class="note bad"><b>6 分以上，或隔天比平常更痛：停止</b>休息，必要時回診。</div></section>';
+  h+='<section class="card"><h2>吃與補充</h2><ul class="plain"><li>每餐吃到蛋白質食物，例如魚、蛋、豆腐、雞肉，幫助保留肌肉。</li><li>鈣質與維生素 D 對骨骼很重要。要吃多少、是否需要補充，請由醫師或營養師依檢查結果決定。</li><li>減重不要追求速度，以保留肌肉與骨骼為優先。</li></ul></section>';
+  h+='<section class="card"><h2>下次回診可以問</h2><ul class="plain"><li>骨密度 T-score 是多少？</li><li>脊椎塌陷的位置（胸椎或腰椎）與正式診斷。</li><li>目前有沒有骨質疏鬆藥物可以搭配？</li><li>可以承受多少重量？輕度衝擊（腳跟輕落）安全嗎？</li><li>膝蓋 X 光退化程度，下樓梯和起身疼痛該怎麼處理？</li><li>血壓、血糖與血脂是否正常？</li></ul></section>';
+  h+='<section class="card"><h2>設定</h2><div class="row2"><div class="field"><label for="s-name">稱呼</label><input type="text" id="s-name" maxlength="12" value="'+esc(S.name)+'" data-set="name"></div><div class="field"><label for="s-start">開始日期</label><input type="date" id="s-start" value="'+S.startDate+'" data-set="startDate"></div></div>';
+  h+='<div class="field"><label for="s-phase">訓練階段</label><select id="s-phase" data-set="phaseMode">'+[['auto','自動（依週數）'],['1','固定第 1 階段'],['2','固定第 2 階段'],['3','固定第 3 階段']].map(function(o){return '<option value="'+o[0]+'"'+(S.phaseMode===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select></div>';
+  h+='<label class="chk"><input type="checkbox" data-set="autoRest"'+(S.autoRest!==false?' checked':'')+'><span>勾選一組後，自動開始 60 秒休息計時</span></label>';
+  h+='<label class="chk"><input type="checkbox" data-set="clearance"'+(S.clearance?' checked':'')+'><span>醫師已確認可以做輕度衝擊（開啟後，下肢日會加入「腳跟輕落」）</span></label></section>';
+  var bk=''; try{bk=JSON.stringify(S);}catch(e){}
+  h+='<section class="card"><h2>備份與還原</h2><p class="small muted">記錄只存在這台裝置的瀏覽器裡。換手機或清除瀏覽資料前，請先複製備份文字保存（例如貼到備忘錄）。要還原時，把備份文字貼進下方文字框再按還原。</p><textarea id="bk" aria-label="備份文字">'+esc(bk)+'</textarea><div class="row2"><button type="button" class="btn" data-act="copybk">複製備份</button><button type="button" class="btn" data-act="restore">用文字框還原</button></div></section>';
+  return h;
+}
+
+/* ---------- 渲染 ---------- */
+function render(){
+  var v={today:viewToday,moves:viewMoves,progress:viewProgress,safety:viewSafety}[tab]||viewToday;
+  $('#view').innerHTML=v();
+  var bs=document.querySelectorAll('.nav button');
+  for(var i=0;i<bs.length;i++){var on=bs[i].dataset.tab===tab;bs[i].classList.toggle('on',on);if(on)bs[i].setAttribute('aria-current','page');else bs[i].removeAttribute('aria-current');}
+}
+function go(t,scroll){
+  if(TABS.indexOf(t)<0)t='today';
+  tab=t;
+  try{if(location.hash!=='#'+t)history.replaceState(null,'','#'+t);}catch(e){}
+  render();
+  if(scroll)window.scrollTo(0,0);
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener('click',function(e){
+  var tb=e.target.closest('[data-tab]');
+  if(tb){go(tb.dataset.tab,true);return;}
+  var b=e.target.closest('[data-act]');
+  if(!b)return;
+  var a=b.dataset.act,date=todayStr();
+  if(a==='stoptimer'){stopTimer();return;}
+  if(a==='hold'){startTimer(+b.dataset.sec,b.dataset.label);return;}
+  if(a==='walk'){var r=D(date,true);r.walks[+b.dataset.i]=!r.walks[+b.dataset.i];save();render();return;}
+  if(a==='set'){
+    var id=b.dataset.ex,i=+b.dataset.i,rr=D(date,true);
+    var arr=rr.done[id]||(rr.done[id]=[]);arr[i]=!arr[i];save();render();
+    var total=EX[id].rx[phaseFor(date)][0];
+    var cnt=0;for(var k=0;k<total;k++){if(arr[k])cnt++;}
+    if(arr[i]&&cnt<total&&S.autoRest!==false&&!EX[id].cat)startTimer(60,'休息一下，下一組準備');
+    return;
+  }
+  if(a==='choose'){var r2=D(date,true);r2.chosen=b.dataset.v;save();render();return;}
+  if(a==='start'){
+    var r3=D(date,true);
+    var pk=+$('#pk').value,pb=+$('#pb').value,pf=$('#pf').checked;
+    var type=r3.chosen!==undefined?r3.chosen:(plannedSession(date)||'none');
+    r3.sess={type:type,preKnee:pk,preBack:pb,fall:pf};
+    if(pb>=4||pf)r3.sess.blocked=true;else r3.sess.started=true;
+    save();render();window.scrollTo(0,0);return;
+  }
+  if(a==='recheck'){var r4=D(date,true);delete r4.sess;save();render();return;}
+  if(a==='finish'){
+    var r5=D(date,true);if(!r5.sess)return;
+    r5.sess.rpe=+$('#rp').value;r5.sess.postKnee=+$('#qk').value;r5.sess.postBack=+$('#qb').value;r5.sess.note=($('#nt').value||'').trim().slice(0,60);r5.sess.finished=true;
+    save();stopTimer();render();toast('已記錄今天的訓練');return;
+  }
+  if(a==='reopen'){var r6=D(date,true);if(r6.sess)r6.sess.finished=false;save();render();return;}
+  if(a==='nextphase'){S.phaseMode=String(Math.min(3,phaseFor(date)+1));save();render();toast('已進入第 '+S.phaseMode+' 階段（可在「安全」頁改回）');return;}
+  if(a==='addmetric'){
+    var m={date:$('#m-date').value||date};
+    var w=parseFloat($('#m-w').value),wa=parseFloat($('#m-wa').value),st=parseInt($('#m-sts').value,10),sl=parseInt($('#m-sl').value,10);
+    if(w>=30&&w<=150)m.weight=w;
+    if(wa>=40&&wa<=160)m.waist=wa;
+    if(st>=0&&st<=60)m.sts=st;
+    if(sl>=0&&sl<=120)m.sl=sl;
+    if(!m.weight&&!m.waist&&m.sts==null&&m.sl==null){toast('請至少填一項數字');return;}
+    S.metrics.push(m);save();render();toast('已儲存');return;
+  }
+  if(a==='delmetric'){
+    var ix=+b.dataset.i;
+    if(pendingDel===ix){S.metrics.splice(ix,1);pendingDel=-1;save();render();toast('已刪除');}
+    else{pendingDel=ix;render();}
+    return;
+  }
+  if(a==='copybk'){
+    var ta=$('#bk');
+    var fallback=function(){ta.focus();ta.select();toast('請長按文字框，選「拷貝」');};
+    try{navigator.clipboard.writeText(ta.value).then(function(){toast('已複製備份');},fallback);}catch(err){fallback();}
+    return;
+  }
+  if(a==='restore'){
+    try{
+      var o=JSON.parse($('#bk').value);
+      if(!o||typeof o!=='object'||typeof o.days!=='object'||!Array.isArray(o.metrics))throw new Error('bad');
+      var d0=def();for(var kk in o){d0[kk]=o[kk];}
+      S=d0;save();render();toast('已還原');
+    }catch(err){toast('文字內容無法還原，請確認有完整貼上');}
+    return;
+  }
+});
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.dataset&&t.dataset.out){var o=document.getElementById(t.dataset.out);if(o)o.textContent=t.value+'・'+(t.dataset.kind==='rpe'?rpeWord(t.value):painWord(t.value));}
+});
+document.addEventListener('change',function(e){
+  var t=e.target,k=t.dataset&&t.dataset.set;
+  if(!k)return;
+  if(k==='name')S.name=t.value.trim().slice(0,12);
+  if(k==='startDate'&&t.value)S.startDate=t.value;
+  if(k==='phaseMode')S.phaseMode=t.value;
+  if(k==='clearance')S.clearance=t.checked;
+  if(k==='autoRest')S.autoRest=t.checked;
+  save();render();
+});
+document.addEventListener('toggle',function(e){
+  var t=e.target;
+  if(t&&t.tagName==='DETAILS'&&t.dataset.exid){if(t.open)openEx[t.dataset.exid]=true;else delete openEx[t.dataset.exid];}
+},true);
+window.addEventListener('hashchange',function(){var t=location.hash.slice(1);if(TABS.indexOf(t)>=0&&t!==tab){tab=t;render();window.scrollTo(0,0);}});
+
+var h0=(location.hash||'').slice(1);
+tab=TABS.indexOf(h0)>=0?h0:'today';
+render();
+})();
+</script>
+
+</body></html>
